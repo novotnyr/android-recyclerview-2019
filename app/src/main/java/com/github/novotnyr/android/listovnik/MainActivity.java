@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,6 +22,8 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,13 +31,21 @@ public class MainActivity extends AppCompatActivity {
 
         NumbersViewModel viewModel = ViewModelProviders.of(this).get(NumbersViewModel.class);
 
-        RecyclerViewListAdapter recyclerViewListAdapter = new RecyclerViewListAdapter();
+        final RecyclerViewListAdapter recyclerViewListAdapter = new RecyclerViewListAdapter();
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(recyclerViewListAdapter);
 
         recyclerViewListAdapter.submitList(viewModel.getNumbers().getValue());
+
+        swipeRefreshLayout = findViewById(R.id.swipeToRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 
     private static class RecyclerViewListAdapter extends ListAdapter<String, RecyclerViewHolder> {
