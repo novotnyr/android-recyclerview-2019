@@ -1,7 +1,17 @@
 package com.github.novotnyr.android.listovnik;
 
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -9,16 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
-import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         NumbersViewModel viewModel = ViewModelProviders.of(this).get(NumbersViewModel.class);
 
         final RecyclerViewListAdapter recyclerViewListAdapter = new RecyclerViewListAdapter();
@@ -39,6 +42,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(recyclerViewListAdapter);
 
         recyclerViewListAdapter.submitList(viewModel.getNumbers().getValue());
+        viewModel.getNumbers().observe(this, new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> newNumbers) {
+                recyclerViewListAdapter.submitList(newNumbers);
+            }
+        });
+
 
         swipeRefreshLayout = findViewById(R.id.swipeToRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
