@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+
+        new ItemTouchHelper(new SwipeToDeleteCallback(viewModel))
+                .attachToRecyclerView(recyclerView);
     }
 
     private static class RecyclerViewListAdapter extends ListAdapter<String, RecyclerViewHolder> {
@@ -86,6 +90,26 @@ public class MainActivity extends AppCompatActivity {
 
         public void setText(String text) {
             ((TextView) itemView).setText(text);
+        }
+    }
+
+    public static class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
+        private NumbersViewModel viewModel;
+
+        public SwipeToDeleteCallback(NumbersViewModel viewModel) {
+            super(0, ItemTouchHelper.RIGHT);
+            this.viewModel = viewModel;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            int position = viewHolder.getAdapterPosition();
+            viewModel.delete(position);
+        }
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
         }
     }
 }
